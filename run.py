@@ -1,4 +1,8 @@
-# Path: run.py
+"""
+Path: run.py
+
+"""
+
 from flask import Flask
 from src.controllers.data_controller import data_controller
 

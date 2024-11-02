@@ -1,4 +1,6 @@
-# Path: src/controllers/data_controller.py
+"""
+Path: src/controllers/data_controller.py
+"""
 
 from flask import Blueprint, request, jsonify
 
@@ -7,7 +9,7 @@ data_controller = Blueprint('data_controller', __name__)
 
 @data_controller.route('/receive-data', methods=['POST'])
 def receive_data():
-    # Obtener los datos del cuerpo de la solicitud
+    """Obtener los datos del cuerpo de la solicitud"""
     data = request.json
     message = data.get('message', 'No message provided')
     user_id = data.get('user_id', 'Unknown user')
