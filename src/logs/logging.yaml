@@ -9,30 +9,40 @@ filters:
 handlers:
   console_dev:
     class: logging.StreamHandler
-    level: DEBUG  # Detalle completo en consola para desarrollo
+    level: DEBUG 
     filters: [exclude_http_logs]
     formatter: simpleFormatter
+#   formatter: colorFormatter
 
   console_prod:
     class: logging.StreamHandler
-    level: INFO  # Solo INFO y superior en consola para producción
+    level: INFO
     filters: [exclude_http_logs]
     formatter: simpleFormatter
 
   ssl_file_handler:
     class: logging.FileHandler
-    level: DEBUG  # Máximo detalle en archivo
+    level: DEBUG 
     filename: "src/logs/sistema.log"
     formatter: simpleFormatter
     encoding: utf-8
 
 loggers:
-  "":  # Root logger
+  "":
     level: DEBUG
     handlers:
-      - ssl_file_handler  # Siempre incluye el handler de archivo
-    # El configurador agregará el handler de consola según el entorno
+      - ssl_file_handler
 
 formatters:
   simpleFormatter:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
+
+  # colorFormatter:
+  #   "()": colorlog.ColoredFormatter
+  #   format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+  #   log_colors:
+  #     DEBUG:    "bold_blue"
+  #     INFO:     "bold_green"
+  #     WARNING:  "bold_yellow"
+  #     ERROR:    "bold_red"
+  #     CRITICAL: "bold_purple"

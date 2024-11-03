@@ -1,6 +1,6 @@
 """
 Path: src/logs/config_change_handle.py
-
+Module to handle changes in logging configuration.
 """
 import logging.config
 from watchdog.events import FileSystemEventHandler

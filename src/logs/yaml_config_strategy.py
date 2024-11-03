@@ -1,6 +1,6 @@
 """
 Path: src/logs/yaml_config_strategy.py
-
+Module to load logging configuration from a YAML file.
 """
 import os
 import logging.config
