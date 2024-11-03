@@ -31,10 +31,6 @@ class YAMLConfigStrategy:
 class LoggerConfigurator:
     """Configures logging for the application using YAML configuration."""
     def __init__(self, config_strategy=None, default_level=logging.INFO):
-        """
-        Initializes the LoggerConfigurator with a configuration strategy.
-        If no strategy is provided, it defaults to YAMLConfigStrategy.
-        """
         self.config_strategy = config_strategy or YAMLConfigStrategy()
         self.default_level = default_level
 
@@ -42,8 +38,13 @@ class LoggerConfigurator:
         """Configures the logger using the provided YAML strategy."""
         config = self.config_strategy.load_config()
         if config:
+            # Decide qué handler de consola usar según el entorno
+            environment = os.getenv("ENV", "dev")
+            console_handler = "console_dev" if environment == "dev" else "console_prod"
+            # Agregar el handler de consola apropiado al root logger
+            config['loggers']['']['handlers'].append(console_handler)
             logging.config.dictConfig(config)
-            logging.debug("Logger configured using YAML configuration.")
+            logging.debug("Logger configured for %s environment.", environment)
         else:
             logging.basicConfig(level=self.default_level)
             logging.warning("Logging configuration not found. Using default settings.")
@@ -60,6 +61,7 @@ class LoggerConfigurator:
         for handler in log.handlers:
             handler.addFilter(info_error_filter)
         logging.debug("Custom filters added to logger handlers.")
+
 
 # Configuración inicial
 logger_configurator = LoggerConfigurator()

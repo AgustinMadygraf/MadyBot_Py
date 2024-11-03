@@ -1,19 +1,27 @@
 # Path: src/logs/logging.yaml
 version: 1
 disable_existing_loggers: false
+
 filters:
   exclude_http_logs:
     "()": "src.logs.exclude_http_logs_filter.ExcludeHTTPLogsFilter"
 
 handlers:
-  console:
+  console_dev:
     class: logging.StreamHandler
-    level: DEBUG
+    level: DEBUG  # Máximo detalle en desarrollo
     filters: [exclude_http_logs]
     formatter: simpleFormatter
+
+  console_prod:
+    class: logging.StreamHandler
+    level: INFO  # Solo INFO y superior en producción
+    filters: [exclude_http_logs]
+    formatter: simpleFormatter
+
   ssl_file_handler:
     class: logging.FileHandler
-    level: DEBUG
+    level: DEBUG  # Siempre máximo detalle en el archivo
     filename: "src/logs/sistema.log"
     formatter: simpleFormatter
     encoding: utf-8
@@ -21,7 +29,8 @@ handlers:
 loggers:
   "":  # Root logger
     level: DEBUG
-    handlers: [console, ssl_file_handler]
+    handlers:  # El configurador elegirá el handler de consola según el entorno
+      - ssl_file_handler
 
 formatters:
   simpleFormatter:
