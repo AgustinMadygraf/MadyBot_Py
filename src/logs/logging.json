@@ -19,7 +19,8 @@
             "class": "logging.FileHandler",
             "level": "DEBUG",
             "filename": "src/logs/sistema.log",
-            "formatter": "simpleFormatter"
+            "formatter": "simpleFormatter",
+            "encoding": "utf-8"
         }
     },
     "loggers": {

@@ -3,7 +3,8 @@ src/__pycache__/
 docs/00-Prompt-for-ProjectAnalysis.md
 .env
 src/install/__pycache__/
-
 src/logs/sistema.log
 src/logs/__pycache__/
 src/model/__pycache__/
+src/views/__pycache__/
+sistema.log

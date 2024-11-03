@@ -1,10 +1,11 @@
 """
 Path: run.py
 """
+import os
 from flask import Flask
-from src.controllers.data_controller import data_controller
 from dotenv import load_dotenv
-from src.model.db_setup import init_db  
+from src.controllers.data_controller import data_controller
+from src.model.db_setup import init_db
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger al inicio del script
@@ -22,5 +23,6 @@ init_db()
 app.register_blueprint(data_controller)
 
 if __name__ == '__main__':
+    os.system('cls' if os.name == 'nt' else 'clear')
     # Ejecuta el servidor Flask en el puerto 5000
     app.run(host='0.0.0.0', port=5000)
