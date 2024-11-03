@@ -9,10 +9,9 @@ filters:
 handlers:
   console_dev:
     class: logging.StreamHandler
-    level: DEBUG 
+    level: DEBUG
     filters: [exclude_http_logs]
-    formatter: simpleFormatter
-#   formatter: colorFormatter
+    formatter: colorFormatter  # Usa el formatter con colores en desarrollo
 
   console_prod:
     class: logging.StreamHandler
@@ -22,7 +21,7 @@ handlers:
 
   ssl_file_handler:
     class: logging.FileHandler
-    level: DEBUG 
+    level: DEBUG
     filename: "src/logs/sistema.log"
     formatter: simpleFormatter
     encoding: utf-8
@@ -31,18 +30,18 @@ loggers:
   "":
     level: DEBUG
     handlers:
-      - ssl_file_handler
+      - ssl_file_handler  # Siempre guarda todo en sistema.log
 
 formatters:
   simpleFormatter:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
 
-  # colorFormatter:
-  #   "()": colorlog.ColoredFormatter
-  #   format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-  #   log_colors:
-  #     DEBUG:    "bold_blue"
-  #     INFO:     "bold_green"
-  #     WARNING:  "bold_yellow"
-  #     ERROR:    "bold_red"
-  #     CRITICAL: "bold_purple"
+  colorFormatter:
+    "()": colorlog.ColoredFormatter
+    format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    log_colors:
+      DEBUG:    "bold_blue"
+      INFO:     "bold_green"
+      WARNING:  "bold_yellow"
+      ERROR:    "bold_red"
+      CRITICAL: "bold_purple"
