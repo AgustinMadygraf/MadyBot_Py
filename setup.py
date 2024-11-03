@@ -1,6 +1,6 @@
 """
 setup.py
-Setup script for Presupuestador.
+
 """
 
 import subprocess
@@ -37,7 +37,7 @@ def listar_interpretes_python():
 
 def actualizar_pip(pip_updater):
     """Actualiza pip utilizando PipUpdater."""
-    pip_updater.update_pip()
+    pip_updater.update()
 
 def verificar_dependencias(installer_manager, requirements_file):
     """Verifica e instala dependencias faltantes desde un archivo requirements."""
@@ -45,13 +45,14 @@ def verificar_dependencias(installer_manager, requirements_file):
         print(f"Verificando dependencias desde {requirements_file}...")
         installer_manager.install_missing_dependencies(requirements_file)
     else:
-        print(f"El archivo {requirements_file} no fue encontrado. ")
+        print(f"El archivo {requirements_file} no fue encontrado.")
 
 def actualizar_pipenv(python_executable):
     """Verifica si pipenv está actualizado y lo actualiza si es necesario."""
     if not PythonInterpreterUtils.is_pipenv_updated(python_executable):
         print("Actualizando dependencias con pipenv...")
-        subprocess.check_call([python_executable, '-m', 'pipenv', 'install'])
+        subprocess.check_call([python_executable, '-m', 'pipenv', 'install',
+                               '--python', python_executable])
 
 def instalar_proyecto():
     """Instala el proyecto utilizando ProjectInstaller."""
