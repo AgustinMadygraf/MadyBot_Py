@@ -28,3 +28,4 @@ src/logs/*.log
 # Excluir directorios de entorno virtual (ajusta según el nombre de tu venv si aplica)
 venv/
 env/
+docs/00-Prompt-for-ProjectAnalysis.md
