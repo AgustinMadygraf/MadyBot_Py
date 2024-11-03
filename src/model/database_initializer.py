@@ -3,8 +3,7 @@ Path: src/model/database_initializer.py
 
 """
 
-import os
-from mysql.connector import Error
+import sqlalchemy
 from src.logs.config_logger import LoggerConfigurator
 from src.model.database_connector import DatabaseConnector
 
@@ -13,48 +12,23 @@ logger = LoggerConfigurator().configure()
 
 class DatabaseInitializer:
     """Clase para inicializar la base de datos y las tablas necesarias."""
-
-    def __init__(self, connector: DatabaseConnector, db_name=None):
+    def __init__(self, connector: DatabaseConnector):
         self.connector = connector
-        self.db_name = db_name or os.getenv("DB_NAME")
-        self.connection = None
+        self.session = None
 
     def initialize_database(self):
         """Inicializa la base de datos y las tablas necesarias."""
-        # Conectar sin especificar una base de datos
-        self.connector.database = None
-        self.connection = self.connector.connect()
-        if self.connection:
-            try:
-                self.create_database()
-                # Reconectar especificando la base de datos
-                self.connector.database = self.db_name
-                self.connection = self.connector.connect()
-                if self.connection:
-                    self.create_tables()
-            finally:
-                self.connector.close_connection()
-
-    def create_database(self):
-        """Crea la base de datos si no existe."""
+        self.session = self.connector.get_session()
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.db_name}")
-            logger.info("Base de datos '%s' verificada/creada exitosamente.", self.db_name)
-        except Error as e:
-            logger.error("Error al crear la base de datos: %s", e)
+            self.create_tables()
         finally:
-            try:
-                cursor.close()
-            except Error as e:
-                logger.error("Error al cerrar el cursor: %s", e)
+            self.session.close()
 
     def create_tables(self):
         """Crea las tablas necesarias en la base de datos."""
         try:
-            cursor = self.connection.cursor()
             # Crear tabla 'usuarios'
-            cursor.execute("""
+            self.session.execute("""
                 CREATE TABLE IF NOT EXISTS usuarios (
                     user_id INT AUTO_INCREMENT PRIMARY KEY,
                     username VARCHAR(255),
@@ -64,7 +38,7 @@ class DatabaseInitializer:
                 )
             """)
             # Crear tabla 'mensajes'
-            cursor.execute("""
+            self.session.execute("""
                 CREATE TABLE IF NOT EXISTS mensajes (
                     message_id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT,
@@ -73,11 +47,10 @@ class DatabaseInitializer:
                     FOREIGN KEY (user_id) REFERENCES usuarios(user_id)
                 )
             """)
+            self.session.commit()
             logger.info("Tablas verificadas/creadas exitosamente.")
-        except Error as e:
+        except (sqlalchemy.exc.SQLAlchemyError, sqlalchemy.exc.OperationalError) as e:
+            self.session.rollback()
             logger.error("Error al crear las tablas: %s", e)
         finally:
-            try:
-                cursor.close()
-            except Error as e:
-                logger.error("Error al cerrar el cursor: %s", e)
+            self.session.close()
