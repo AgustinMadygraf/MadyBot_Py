@@ -5,7 +5,8 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from src.controllers.data_controller import data_controller
-from src.model.db_setup import DatabaseConnector, DatabaseInitializer
+from src.model.database_connector import DatabaseConnector
+from src.model.database_initializer import DatabaseInitializer
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger al inicio del script
