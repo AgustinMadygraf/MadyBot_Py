@@ -1,0 +1,28 @@
+# Path: src/logs/logging.yaml
+version: 1
+disable_existing_loggers: false
+filters:
+  exclude_http_logs:
+    "()": "src.logs.exclude_http_logs_filter.ExcludeHTTPLogsFilter"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    filters: [exclude_http_logs]
+    formatter: simpleFormatter
+  ssl_file_handler:
+    class: logging.FileHandler
+    level: DEBUG
+    filename: "src/logs/sistema.log"
+    formatter: simpleFormatter
+    encoding: utf-8
+
+loggers:
+  "":  # Root logger
+    level: DEBUG
+    handlers: [console, ssl_file_handler]
+
+formatters:
+  simpleFormatter:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"

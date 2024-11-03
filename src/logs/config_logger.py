@@ -1,6 +1,6 @@
 """
 src/logs/config_logger.py
-Logger configuration module.
+Module to configure logging using the Strategy Pattern.
 """
 
 import logging.config
@@ -13,28 +13,37 @@ class ConfigStrategy(ABC):
     """Abstract base class for configuration strategies."""
     @abstractmethod
     def load_config(self):
-        """Loads the configuration from a file or environment variable."""
-        pass
+        """Loads the logging configuration from a specific source."""
+
 
 class JSONConfigStrategy(ConfigStrategy):
-    """Loads configuration from a JSON file with UTF-8 encoding."""
+    """Loads logging configuration from a JSON file."""
     def __init__(self, config_path='src/logs/logging.json', env_key='LOG_CFG'):
         self.config_path = config_path
         self.env_key = env_key
+
     def load_config(self):
-        """Loads configuration from a JSON file or environment variable with UTF-8."""
-        path = self.config_path
-        value = os.getenv(self.env_key, None)
-        if value:
-            path = value
+        """Attempts to load logging configuration from a JSON file specified in env_key."""
+        path = os.getenv(self.env_key, self.config_path)
         if os.path.exists(path):
-            with open(path, 'rt', encoding='utf-8') as f:
-                return json.load(f)
+            try:
+                with open(path, 'rt', encoding='utf-8') as f:
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                logging.error("JSON configuration file is invalid: %s", e)
+        else:
+            logging.warning("Logging configuration file not found at path: %s", path)
         return None
+
 
 class LoggerConfigurator:
     """Configures logging for the application using a strategy pattern."""
+
     def __init__(self, config_strategy=None, default_level=logging.INFO):
+        """
+        Initializes the LoggerConfigurator with a configuration strategy.
+        If no strategy is provided, it defaults to JSONConfigStrategy.
+        """
         self.config_strategy = config_strategy or JSONConfigStrategy()
         self.default_level = default_level
 
@@ -43,17 +52,22 @@ class LoggerConfigurator:
         config = self.config_strategy.load_config()
         if config:
             logging.config.dictConfig(config)
+            logging.debug("Logger configured using JSON strategy.")
         else:
             logging.basicConfig(level=self.default_level)
-            logging.warning("Logging configuration file not found. Using default settings.")
-        # Configurar el handler de archivo con UTF-8
-        local_logger = logging.getLogger(__name__)
-        file_handler = logging.FileHandler('sistema.log', encoding='utf-8')
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        local_logger.addHandler(file_handler)
-        local_logger.addFilter(InfoErrorFilter())  # Aplica el filtro InfoErrorFilter
-        return local_logger
+            logging.warning("Logging configuration not found. Using default settings.")
+
+        # Get a root logger and add custom handlers/filters if needed
+        root_logger = logging.getLogger()
+        self._add_custom_filters(root_logger)
+        return root_logger
+    @staticmethod
+    def _add_custom_filters(log):
+        """Adds custom filters, such as InfoErrorFilter, to the logger."""
+        info_error_filter = InfoErrorFilter()
+        for handler in log.handlers:
+            handler.addFilter(info_error_filter)
+        logging.debug("Custom filters added to logger handlers.")
 
 # Configuración inicial
 initial_config_strategy = JSONConfigStrategy()
