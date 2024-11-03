@@ -30,12 +30,25 @@ class YAMLConfigStrategy:
 
 class LoggerConfigurator:
     """Configures logging for the application using YAML configuration."""
+    _instance = None  # Variable de clase para mantener la instancia singleton
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(LoggerConfigurator, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, config_strategy=None, default_level=logging.INFO):
-        self.config_strategy = config_strategy or YAMLConfigStrategy()
-        self.default_level = default_level
+        if not hasattr(self, "_initialized"):  # Solo inicializa una vez
+            self.config_strategy = config_strategy or YAMLConfigStrategy()
+            self.default_level = default_level
+            self._configured = False  # Inicializa la configuración como no completada
+            self._initialized = True  # Marca la instancia como inicializada
 
     def configure(self):
         """Configures the logger using the provided YAML strategy."""
+        if getattr(self, "_configured", False):  # Verifica si ya se ha configurado
+            return logging.getLogger()
+
         config = self.config_strategy.load_config()
         if config:
             # Decide qué handler de consola usar según el entorno
@@ -45,24 +58,24 @@ class LoggerConfigurator:
             config['loggers']['']['handlers'].append(console_handler)
             logging.config.dictConfig(config)
             logging.debug("Logger configured for %s environment.", environment)
+            self._configured = True  # Marca la configuración como completada
         else:
             logging.basicConfig(level=self.default_level)
             logging.warning("Logging configuration not found. Using default settings.")
-
         # Get a root logger and add custom handlers/filters if needed
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
-        return root_logger
+        LoggerConfigurator._add_custom_filters(root_logger)
 
     @staticmethod
+    @staticmethod
     def _add_custom_filters(log):
-        """Adds custom filters, such as InfoErrorFilter, to the logger."""
         info_error_filter = InfoErrorFilter()
         for handler in log.handlers:
             handler.addFilter(info_error_filter)
         logging.debug("Custom filters added to logger handlers.")
 
 
-# Configuración inicial
+# Configuración inicial (singleton)
 logger_configurator = LoggerConfigurator()
 logger = logger_configurator.configure()

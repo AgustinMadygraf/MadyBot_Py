@@ -9,19 +9,19 @@ filters:
 handlers:
   console_dev:
     class: logging.StreamHandler
-    level: DEBUG  # Máximo detalle en desarrollo
+    level: DEBUG  # Detalle completo en consola para desarrollo
     filters: [exclude_http_logs]
     formatter: simpleFormatter
 
   console_prod:
     class: logging.StreamHandler
-    level: INFO  # Solo INFO y superior en producción
+    level: INFO  # Solo INFO y superior en consola para producción
     filters: [exclude_http_logs]
     formatter: simpleFormatter
 
   ssl_file_handler:
     class: logging.FileHandler
-    level: DEBUG  # Siempre máximo detalle en el archivo
+    level: DEBUG  # Máximo detalle en archivo
     filename: "src/logs/sistema.log"
     formatter: simpleFormatter
     encoding: utf-8
@@ -29,8 +29,9 @@ handlers:
 loggers:
   "":  # Root logger
     level: DEBUG
-    handlers:  # El configurador elegirá el handler de consola según el entorno
-      - ssl_file_handler
+    handlers:
+      - ssl_file_handler  # Siempre incluye el handler de archivo
+    # El configurador agregará el handler de consola según el entorno
 
 formatters:
   simpleFormatter:
