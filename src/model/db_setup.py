@@ -42,8 +42,7 @@ class DatabaseManager:
                 logger.error("Error al conectar con MySQL (Intento %d): %s", attempt + 1, e)
                 attempt += 1
                 time.sleep(self.delay)  # Esperar antes de reintentar
-        logger.error("No se pudo establecer conexión con MySQL después de %d intentos."
-                     , self.retries)
+        logger.error("No se pudo establecer conexión con MySQL después de %d intentos.", self.retries)
         return False
 
     def create_database(self):
@@ -56,7 +55,10 @@ class DatabaseManager:
             except Error as e:
                 logger.error("Error al crear la base de datos: %s", e)
             finally:
-                cursor.close()
+                try:
+                    cursor.close()
+                except Error as e:
+                    logger.error("Error al cerrar el cursor: %s", e)
 
     def create_tables(self):
         """Crea las tablas necesarias en la base de datos."""
@@ -86,7 +88,10 @@ class DatabaseManager:
             except Error as e:
                 logger.error("Error al crear las tablas: %s", e)
             finally:
-                cursor.close()
+                try:
+                    cursor.close()
+                except Error as e:
+                    logger.error("Error al cerrar el cursor: %s", e)
 
     def initialize_database(self):
         """Inicializa la base de datos y las tablas necesarias."""
@@ -96,5 +101,8 @@ class DatabaseManager:
                 self.create_tables()
             finally:
                 if self.connection.is_connected():
-                    self.connection.close()
-                    logger.info("Conexión con el servidor MySQL cerrada.")
+                    try:
+                        self.connection.close()
+                        logger.info("Conexión con el servidor MySQL cerrada.")
+                    except Error as e:
+                        logger.error("Error al cerrar la conexión con MySQL: %s", e)
