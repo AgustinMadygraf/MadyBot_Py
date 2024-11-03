@@ -6,6 +6,8 @@ Module to configure logging using YAML.
 import logging.config
 import os
 import yaml
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from src.logs.info_error_filter import InfoErrorFilter
 
 class YAMLConfigStrategy:
@@ -15,7 +17,7 @@ class YAMLConfigStrategy:
         self.env_key = env_key
 
     def load_config(self):
-        """Attempts to load logging configuration from a YAML file specified in env_key."""
+        """Loads logging configuration from a YAML file specified in env_key."""
         path = os.getenv(self.env_key, self.config_path)
         if os.path.exists(path):
             try:
@@ -28,9 +30,22 @@ class YAMLConfigStrategy:
         return None
 
 
+class ConfigChangeHandler(FileSystemEventHandler):
+    """Handler to reload logging configuration when logging.yaml changes."""
+
+    def __init__(self, configurator):
+        self.configurator = configurator
+
+    def on_modified(self, event):
+        """Reloads logging configuration when logging.yaml is modified."""
+        if event.src_path.endswith("logging.yaml"):
+            logging.info("Detected change in logging.yaml, reloading configuration.")
+            self.configurator.reload_config()
+
+
 class LoggerConfigurator:
-    """Configures logging for the application using YAML configuration."""
-    _instance = None  # Variable de clase para mantener la instancia singleton
+    """Configures logging for the application using YAML configuration with dynamic reloading."""
+    _instance = None  # Singleton instance
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -38,36 +53,45 @@ class LoggerConfigurator:
         return cls._instance
 
     def __init__(self, config_strategy=None, default_level=logging.INFO):
-        if not hasattr(self, "_initialized"):  # Solo inicializa una vez
+        if not hasattr(self, "_initialized"):
             self.config_strategy = config_strategy or YAMLConfigStrategy()
             self.default_level = default_level
-            self._configured = False  # Inicializa la configuración como no completada
-            self._initialized = True  # Marca la instancia como inicializada
+            self._configured = False
+            self._initialized = True  # Singleton initialization flag
 
     def configure(self):
-        """Configures the logger using the provided YAML strategy."""
-        if getattr(self, "_configured", False):  # Verifica si ya se ha configurado
+        """Initial configuration of the logger."""
+        if self._configured:
             return logging.getLogger()
 
+        self.reload_config()  # Initial configuration
+        self._configured = True
+        self.start_watchdog()
+
+    def reload_config(self):
+        """Reloads logging configuration from YAML file."""
         config = self.config_strategy.load_config()
         if config:
-            # Decide qué handler de consola usar según el entorno
             environment = os.getenv("ENV", "dev")
             console_handler = "console_dev" if environment == "dev" else "console_prod"
-            # Agregar el handler de consola apropiado al root logger
             config['loggers']['']['handlers'].append(console_handler)
             logging.config.dictConfig(config)
-            logging.debug("Logger configured for %s environment.", environment)
-            self._configured = True  # Marca la configuración como completada
+            logging.debug("Logger reconfigured for %s environment.", environment)
         else:
             logging.basicConfig(level=self.default_level)
             logging.warning("Logging configuration not found. Using default settings.")
-        # Get a root logger and add custom handlers/filters if needed
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
-        LoggerConfigurator._add_custom_filters(root_logger)
 
-    @staticmethod
+    def start_watchdog(self):
+        """Starts a watchdog observer to monitor changes in the logging config file."""
+        observer = Observer()
+        event_handler = ConfigChangeHandler(self)
+        observer.schedule(event_handler, path=os.path.dirname(
+            self.config_strategy.config_path), recursive=False)
+        observer.start()
+        logging.info("Started watchdog for dynamic logging configuration reloading.")
+
     @staticmethod
     def _add_custom_filters(log):
         info_error_filter = InfoErrorFilter()
@@ -76,6 +100,6 @@ class LoggerConfigurator:
         logging.debug("Custom filters added to logger handlers.")
 
 
-# Configuración inicial (singleton)
+# Configuración inicial
 logger_configurator = LoggerConfigurator()
 logger = logger_configurator.configure()
