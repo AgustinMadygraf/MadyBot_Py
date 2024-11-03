@@ -1,41 +1,33 @@
-# Path: src/logs/logging.yaml
 version: 1
 disable_existing_loggers: false
-
 filters:
   exclude_http_logs:
     "()": "src.logs.exclude_http_logs_filter.ExcludeHTTPLogsFilter"
-
 handlers:
   console_dev:
     class: logging.StreamHandler
     level: DEBUG
     filters: [exclude_http_logs]
-    formatter: colorFormatter  # Usa el formatter con colores en desarrollo
-
+    formatter: colorFormatter
   console_prod:
     class: logging.StreamHandler
-    level: INFO
+    level: WARNING
     filters: [exclude_http_logs]
     formatter: simpleFormatter
-
-  ssl_file_handler:
+  file_handler:
     class: logging.FileHandler
     level: DEBUG
     filename: "src/logs/sistema.log"
     formatter: simpleFormatter
     encoding: utf-8
-
 loggers:
   "":
     level: DEBUG
     handlers:
-      - ssl_file_handler  # Siempre guarda todo en sistema.log
-
+      - file_handler
 formatters:
   simpleFormatter:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
-
   colorFormatter:
     "()": colorlog.ColoredFormatter
     format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s"

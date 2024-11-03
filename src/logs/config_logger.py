@@ -1,6 +1,6 @@
 """
 src/logs/config_logger.py
-Module to configure logging using YAML.
+This module configures the logging for the application using a YAML configuration file with dynamic reloading.
 """
 
 import logging.config
@@ -65,7 +65,6 @@ class LoggerConfigurator:
         for handler in log.handlers:
             handler.addFilter(info_error_filter)
         logging.debug("Custom filters added to logger handlers.")
-
 
 # Configuración inicial
 logger_configurator = LoggerConfigurator()
