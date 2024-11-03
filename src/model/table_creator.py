@@ -1,18 +1,20 @@
 """
 Path: src/model/table_creator.py
-Este módulo proporciona una clase para manejar la creación de tablas en la base de datos.
+
 """
 
 from sqlalchemy import text
 import sqlalchemy
+from sqlalchemy.orm import Session
 from src.logs.config_logger import LoggerConfigurator
+from src.model.table_creation_strategy import TableCreationStrategy
 
 # Configuración del logger al inicio del script
 logger = LoggerConfigurator().configure()
 
-class TableCreator:
+class TableCreator(TableCreationStrategy):
     """Clase para manejar la creación de tablas en la base de datos."""
-    def create_tables(self, session):
+    def create_tables(self, session: Session):
         """Crea las tablas necesarias en la base de datos."""
         try:
             # Crear tabla 'usuarios'
