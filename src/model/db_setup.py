@@ -42,7 +42,8 @@ class DatabaseManager:
                 logger.error("Error al conectar con MySQL (Intento %d): %s", attempt + 1, e)
                 attempt += 1
                 time.sleep(self.delay)  # Esperar antes de reintentar
-        logger.error("No se pudo establecer conexión con MySQL después de %d intentos.", self.retries)
+        logger.error("No se pudo establecer conexión con MySQL después de %d intentos.",
+                     self.retries)
         return False
 
     def create_database(self):
