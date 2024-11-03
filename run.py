@@ -5,20 +5,33 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from src.controllers.data_controller import data_controller
-from src.model.db_setup import DatabaseManager
+from src.model.db_setup import DatabaseConnector, DatabaseInitializer
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger al inicio del script
 logger = LoggerConfigurator().configure()
 logger.debug("Logger configurado correctamente al inicio del servidor.")
+
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 app = Flask(__name__)
 
-# Inicializar la base de datos y tablas usando DatabaseManager
-db_manager = DatabaseManager()
-db_manager.initialize_database()
+# Crear una instancia de DatabaseConnector con parámetros configurables
+db_connector = DatabaseConnector(
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    port=os.getenv("DB_PORT"),
+    retries=5,
+    delay=2
+)
+
+# Crear una instancia de DatabaseInitializer usando el conector
+db_initializer = DatabaseInitializer(connector=db_connector, db_name=os.getenv("DB_NAME"))
+
+# Inicializar la base de datos y las tablas
+db_initializer.initialize_database()
 
 # Registrar el blueprint del controlador
 app.register_blueprint(data_controller)

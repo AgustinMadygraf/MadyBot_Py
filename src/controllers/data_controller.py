@@ -44,7 +44,8 @@ def receive_data():
     if len(data['message']) > 255:
         logger.warning("El 'message' es demasiado largo. Respuesta con error 400.")
         return render_json_response({"error":
-            "Solicitud inválida. 'message' no debe exceder los 255 caracteres."}, status="error", code=400)
+            "Solicitud inválida. 'message' no debe exceder los 255 caracteres."},
+            status="error", code=400)
     message = data['message']
     user_id = data['user_id']
 
