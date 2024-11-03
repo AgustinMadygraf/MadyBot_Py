@@ -13,14 +13,39 @@ class YAMLConfigStrategy:
         self.env_key = env_key
 
     def load_config(self):
-        """Loads logging configuration from a YAML file specified in env_key."""
+        """Carga la configuración de logging desde un archivo YAML especificado en env_key."""
         path = os.getenv(self.env_key, self.config_path)
         if os.path.exists(path):
             try:
                 with open(path, 'rt', encoding='utf-8') as f:
                     return yaml.safe_load(f)
             except yaml.YAMLError as e:
-                logging.error("YAML configuration file is invalid: %s", e)
+                logging.error("Configuración YAML inválida: %s", e)
         else:
-            logging.warning("Logging configuration file not found at path: %s", path)
-        return None
+            logging.warning("Archivo de configuración no encontrado en la ruta: %s", path)
+        # Retorna configuración por defecto
+        return self.default_config()
+
+    def default_config(self):
+        """Proporciona una configuración de logging por defecto."""
+        return {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'handlers': {
+                'console': {
+                    'class': 'logging.StreamHandler',
+                    'level': 'WARNING',
+                    'formatter': 'simpleFormatter',
+                    'stream': 'ext://sys.stdout',
+                },
+            },
+            'formatters': {
+                'simpleFormatter': {
+                    'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                },
+            },
+            'root': {
+                'level': 'WARNING',
+                'handlers': ['console'],
+            },
+        }
