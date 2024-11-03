@@ -1,11 +1,13 @@
 """
 src/logs/config_logger.py
-This module configures the logging for the application using a YAML configuration file with dynamic reloading.
+This module configures the logging for the application using a 
+YAML configuration file with dynamic reloading.
 """
 
 import logging.config
 import os
 from watchdog.observers import Observer
+import yaml
 from src.logs.info_error_filter import InfoErrorFilter
 from src.logs.yaml_config_strategy import YAMLConfigStrategy
 from src.logs.config_change_handler import ConfigChangeHandler
@@ -37,16 +39,28 @@ class LoggerConfigurator:
 
     def reload_config(self):
         """Reloads logging configuration from YAML file."""
-        config = self.config_strategy.load_config()
-        if config:
-            environment = os.getenv("ENV", "dev")
-            console_handler = "console_dev" if environment == "dev" else "console_prod"
-            config['loggers']['']['handlers'].append(console_handler)
-            logging.config.dictConfig(config)
-            logging.debug("Logger reconfigured for %s environment.", environment)
-        else:
+        try:
+            config = self.config_strategy.load_config()
+            if config:
+                environment = os.getenv("ENV", "dev")
+                console_handler = "console_dev" if environment == "dev" else "console_prod"
+                config['loggers']['']['handlers'].append(console_handler)
+                logging.config.dictConfig(config)
+                logging.debug("Logger reconfigured for %s environment.", environment)
+            else:
+                raise ValueError("Empty configuration loaded.")
+        except (yaml.YAMLError, ValueError) as e:
             logging.basicConfig(level=self.default_level)
-            logging.warning("Logging configuration not found. Using default settings.")
+            logging.error("Failed to load logging configuration: %s. Using default settings.", e)
+        except (OSError, IOError) as e:
+            logging.basicConfig(level=self.default_level)
+            logging.error(
+                "File-related error loading logging configuration: %s. Using default settings.", e)
+        except Exception as e:
+            logging.basicConfig(level=self.default_level)
+            logging.error(
+                "Unexpected error loading logging configuration: %s. Using default settings.", e)
+
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
 
@@ -54,8 +68,8 @@ class LoggerConfigurator:
         """Starts a watchdog observer to monitor changes in the logging config file."""
         observer = Observer()
         event_handler = ConfigChangeHandler(self)
-        observer.schedule(event_handler, path=os.path.dirname(
-            self.config_strategy.config_path), recursive=False)
+        observer.schedule(event_handler, path=os.path.dirname(self.config_strategy.config_path),
+                          recursive=False)
         observer.start()
         logging.info("Started watchdog for dynamic logging configuration reloading.")
 
