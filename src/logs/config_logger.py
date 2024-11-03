@@ -7,6 +7,7 @@ import logging.config
 import os
 import json
 from abc import ABC, abstractmethod
+import yaml
 from src.logs.info_error_filter import InfoErrorFilter
 
 class ConfigStrategy(ABC):
@@ -36,6 +37,26 @@ class JSONConfigStrategy(ConfigStrategy):
         return None
 
 
+class YAMLConfigStrategy(ConfigStrategy):
+    """Loads logging configuration from a YAML file."""
+    def __init__(self, config_path='src/logs/logging.yaml', env_key='LOG_CFG'):
+        self.config_path = config_path
+        self.env_key = env_key
+
+    def load_config(self):
+        """Attempts to load logging configuration from a YAML file specified in env_key."""
+        path = os.getenv(self.env_key, self.config_path)
+        if os.path.exists(path):
+            try:
+                with open(path, 'rt', encoding='utf-8') as f:
+                    return yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                logging.error("YAML configuration file is invalid: %s", e)
+        else:
+            logging.warning("Logging configuration file not found at path: %s", path)
+        return None
+
+
 class LoggerConfigurator:
     """Configures logging for the application using a strategy pattern."""
 
@@ -52,7 +73,8 @@ class LoggerConfigurator:
         config = self.config_strategy.load_config()
         if config:
             logging.config.dictConfig(config)
-            logging.debug("Logger configured using JSON strategy.")
+            logging.debug("Logger configured using %s strategy.",
+                          self.config_strategy.__class__.__name__)
         else:
             logging.basicConfig(level=self.default_level)
             logging.warning("Logging configuration not found. Using default settings.")
@@ -61,6 +83,7 @@ class LoggerConfigurator:
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
         return root_logger
+
     @staticmethod
     def _add_custom_filters(log):
         """Adds custom filters, such as InfoErrorFilter, to the logger."""
@@ -70,6 +93,6 @@ class LoggerConfigurator:
         logging.debug("Custom filters added to logger handlers.")
 
 # Configuración inicial
-initial_config_strategy = JSONConfigStrategy()
+initial_config_strategy = YAMLConfigStrategy()  # Cambiar aquí a YAMLConfigStrategy para probar YAML
 logger_configurator = LoggerConfigurator(config_strategy=initial_config_strategy)
 logger = logger_configurator.configure()
