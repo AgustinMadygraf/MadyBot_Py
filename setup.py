@@ -35,32 +35,31 @@ def listar_interpretes_python():
         return python_interpreters[int(selected_index)]
     return sys.executable
 
-def actualizar_pip(pip_updater):
+def actualizar_pip(updater):
     """Actualiza pip utilizando PipUpdater."""
-    pip_updater.update()
+    updater.update()
 
-def verificar_dependencias(installer_manager, requirements_file):
+def verificar_dependencias(manager, requirements_file):
     """Verifica e instala dependencias faltantes desde un archivo requirements."""
     if os.path.exists(requirements_file):
         print(f"Verificando dependencias desde {requirements_file}...")
-        installer_manager.install_missing_dependencies(requirements_file)
+        manager.install_missing_dependencies(requirements_file)
     else:
         print(f"El archivo {requirements_file} no fue encontrado.")
 
-def actualizar_pipenv(python_executable):
+def actualizar_pipenv(python_exec):
     """Verifica si pipenv está actualizado y lo actualiza si es necesario."""
-    if not PythonInterpreterUtils.is_pipenv_updated(python_executable):
+    if not PythonInterpreterUtils.is_pipenv_updated(python_exec):
         print("Actualizando dependencias con pipenv...")
-        subprocess.check_call([python_executable, '-m', 'pipenv', 'install',
-                               '--python', python_executable])
+        subprocess.check_call([python_exec, '-m', 'pipenv', 'install',
+                               '--python', python_exec])
 
 def instalar_proyecto():
     """Instala el proyecto utilizando ProjectInstaller."""
     project_installer = ProjectInstaller()
     project_installer.main()
 
-def iniciar():
-    """Función principal que coordina el proceso de instalación."""
+if __name__ == "__main__":
     limpiar_pantalla()
     mostrar_mensaje_inicio()
     mostrar_version_python()
@@ -76,6 +75,3 @@ def iniciar():
     verificar_dependencias(installer_manager, 'requirements.txt')
     actualizar_pipenv(python_executable)
     instalar_proyecto()
-
-if __name__ == "__main__":
-    iniciar()
