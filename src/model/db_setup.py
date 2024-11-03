@@ -4,6 +4,7 @@ Este script se encarga de inicializar la base de datos y las tablas necesarias s
 """
 
 import os
+import time
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
@@ -15,21 +16,27 @@ logger = LoggerConfigurator().configure()
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-def connect_without_db():
-    """Establece conexión con el servidor MySQL sin especificar la base de datos."""
-    try:
-        connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT")
-        )
-        if connection.is_connected():
-            logger.info("Conexión al servidor MySQL establecida.")
-            return connection
-    except Error as e:
-        logger.error("Error al conectar con MySQL: %s", e)
-        return None
+def connect_without_db(retries=3, delay=5):
+    """Establece conexión con el servidor MySQL sin especificar la base de datos.
+    Intenta reconectarse en caso de fallo temporal."""
+    attempt = 0
+    while attempt < retries:
+        try:
+            connection = mysql.connector.connect(
+                host=os.getenv("DB_HOST"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                port=os.getenv("DB_PORT")
+            )
+            if connection.is_connected():
+                logger.info("Conexión al servidor MySQL establecida.")
+                return connection
+        except Error as e:
+            logger.error("Error al conectar con MySQL (Intento %d): %s", attempt + 1, e)
+            attempt += 1
+            time.sleep(delay)  # Esperar antes de reintentar
+    logger.error("No se pudo establecer conexión con MySQL después de %d intentos.", retries)
+    return None
 
 def create_database(connection):
     """Crea la base de datos si no existe."""
