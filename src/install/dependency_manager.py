@@ -7,6 +7,16 @@ la instalación de dependencias y la verificación de dependencias faltantes.
 import subprocess
 import sys
 from abc import ABC, abstractmethod
+import logging
+import traceback
+
+# Configurar el logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('dependency_manager.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class Updater(ABC):
     """
@@ -69,60 +79,24 @@ class PipDependencyInstaller(DependencyInstaller):
             print(f"No se pudo instalar {dependency}. Error: {e}")
             return False
 
-
 class DependencyInstallerManager:
-    """
-    Clase responsable de instalar las dependencias faltantes.
-    Ahora depende de interfaces en lugar de clases concretas.
-    """
-    def __init__(self, installer: DependencyInstaller, updater: Updater, max_retries: int = 3):
-        """
-        Inicializa la clase DependencyInstallerManager con un instalador y un actualizador.
-
-        :param installer: Instancia de una clase que implementa la interfaz DependencyInstaller.
-        :param updater: Instancia de una clase que implementa la interfaz Updater.
-        :param max_retries: Número máximo de intentos para instalar cada dependencia.
-        """
+    """ Clase que gestiona la instalación de dependencias. """
+    def __init__(self, installer, pip_updater, max_retries=3):
         self.installer = installer
-        self.updater = updater
+        self.pip_updater = pip_updater
         self.max_retries = max_retries
 
-    def install_missing_dependencies(self, requirements_file: str = 'requirements.txt') -> None:
-        """
-        Instala las dependencias faltantes utilizando el instalador proporcionado.
-        Si una instalación falla, se reintentará hasta max_retries veces.
-
-        :param requirements_file: Ruta al archivo requirements.txt que contiene las dependencias.
-        """
-        failed_dependencies = []  # Lista para almacenar dependencias que no se pudieron instalar
-
-        print(f"Leyendo dependencias desde {requirements_file}...")
-
-        try:
-            with open(requirements_file, 'r', encoding='utf-8') as file:
-                dependencies = file.read().splitlines()
-        except FileNotFoundError:
-            print(f"El archivo {requirements_file} no fue encontrado.")
-            return
-
-        print(f"Las siguientes dependencias están faltantes: {', '.join(dependencies)}")
-        print("Intentando instalar dependencias faltantes...")
-
-        for dep in dependencies:
-            success = False
-            for attempt in range(self.max_retries):
-                print(f"Intentando instalar {dep} (intento {attempt + 1}/{self.max_retries})...")
-                if self.installer.install(dep):
-                    success = True
-                    break
-                print(f"Reintentando instalación de {dep}...")
-
-            if not success:
-                print(f"Fallo la instalación de {dep} después de {self.max_retries} intentos.")
-                failed_dependencies.append(dep)
-
-        if failed_dependencies:
-            print("Las siguientes dependencias no pudieron ser instaladas:")
-            print(", ".join(failed_dependencies))
-        else:
-            print("Todas las dependencias fueron instaladas exitosamente.")
+    def install_missing_dependencies(self, requirements_file):
+        """ Instala las dependencias faltantes desde un archivo requirements. """
+        for attempt in range(self.max_retries):
+            try:
+                self.installer.install(requirements_file)
+                logger.info("Dependencies installed successfully from %s", requirements_file)
+                break
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                logger.error("Attempt %d failed: %s", attempt + 1, str(e))
+                logger.debug(traceback.format_exc())
+                if attempt == self.max_retries - 1:
+                    logger.critical("Failed to install dependencies after %d attempts",
+                                    self.max_retries)
+                    raise RuntimeError("Failed to install dependencies") from e
