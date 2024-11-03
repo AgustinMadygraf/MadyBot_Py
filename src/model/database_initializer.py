@@ -4,6 +4,7 @@ Path: src/model/database_initializer.py
 """
 
 import sqlalchemy
+from sqlalchemy import text
 from src.logs.config_logger import LoggerConfigurator
 from src.model.database_connector import DatabaseConnector
 
@@ -28,7 +29,7 @@ class DatabaseInitializer:
         """Crea las tablas necesarias en la base de datos."""
         try:
             # Crear tabla 'usuarios'
-            self.session.execute("""
+            self.session.execute(text("""
                 CREATE TABLE IF NOT EXISTS usuarios (
                     user_id INT AUTO_INCREMENT PRIMARY KEY,
                     username VARCHAR(255),
@@ -36,9 +37,9 @@ class DatabaseInitializer:
                     phone_number VARCHAR(20),
                     first_connection_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """))
             # Crear tabla 'mensajes'
-            self.session.execute("""
+            self.session.execute(text("""
                 CREATE TABLE IF NOT EXISTS mensajes (
                     message_id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT,
@@ -46,7 +47,7 @@ class DatabaseInitializer:
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES usuarios(user_id)
                 )
-            """)
+            """))
             self.session.commit()
             logger.info("Tablas verificadas/creadas exitosamente.")
         except (sqlalchemy.exc.SQLAlchemyError, sqlalchemy.exc.OperationalError) as e:
