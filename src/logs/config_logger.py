@@ -5,43 +5,10 @@ Module to configure logging using YAML.
 
 import logging.config
 import os
-import yaml
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from src.logs.info_error_filter import InfoErrorFilter
-
-class YAMLConfigStrategy:
-    """Loads logging configuration from a YAML file."""
-    def __init__(self, config_path='src/logs/logging.yaml', env_key='LOG_CFG'):
-        self.config_path = config_path
-        self.env_key = env_key
-
-    def load_config(self):
-        """Loads logging configuration from a YAML file specified in env_key."""
-        path = os.getenv(self.env_key, self.config_path)
-        if os.path.exists(path):
-            try:
-                with open(path, 'rt', encoding='utf-8') as f:
-                    return yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                logging.error("YAML configuration file is invalid: %s", e)
-        else:
-            logging.warning("Logging configuration file not found at path: %s", path)
-        return None
-
-
-class ConfigChangeHandler(FileSystemEventHandler):
-    """Handler to reload logging configuration when logging.yaml changes."""
-
-    def __init__(self, configurator):
-        self.configurator = configurator
-
-    def on_modified(self, event):
-        """Reloads logging configuration when logging.yaml is modified."""
-        if event.src_path.endswith("logging.yaml"):
-            logging.info("Detected change in logging.yaml, reloading configuration.")
-            self.configurator.reload_config()
-
+from src.logs.yaml_config_strategy import YAMLConfigStrategy
+from src.logs.config_change_handler import ConfigChangeHandler
 
 class LoggerConfigurator:
     """Configures logging for the application using YAML configuration with dynamic reloading."""
