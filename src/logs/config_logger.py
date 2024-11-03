@@ -49,17 +49,19 @@ class LoggerConfigurator:
                 logging.debug("Logger reconfigured for %s environment.", environment)
             else:
                 raise ValueError("Empty configuration loaded.")
-        except (yaml.YAMLError, ValueError) as e:
+        except yaml.YAMLError as e:  # Específico para errores en YAML
             logging.basicConfig(level=self.default_level)
-            logging.error("Failed to load logging configuration: %s. Using default settings.", e)
-        except (OSError, IOError) as e:
+            logging.error(
+                "YAML error loading logging configuration: %s. Using default settings.", e)
+
+        except ValueError as e:  # Para valores inválidos
+            logging.basicConfig(level=self.default_level)
+            logging.error("Invalid configuration loaded: %s. Using default settings.", e)
+
+        except (OSError, IOError) as e:  # Para errores de archivo y E/S
             logging.basicConfig(level=self.default_level)
             logging.error(
                 "File-related error loading logging configuration: %s. Using default settings.", e)
-        except Exception as e:
-            logging.basicConfig(level=self.default_level)
-            logging.error(
-                "Unexpected error loading logging configuration: %s. Using default settings.", e)
 
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
