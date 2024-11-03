@@ -1,32 +1,52 @@
+"""
+Path: src/model/db_setup.py
+Este script se encarga de inicializar la base de datos y las tablas necesarias si no existen.
+"""
+
 import os
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
+from src.logs.config_logger import LoggerConfigurator
+
+# Configuración del logger al inicio del script
+logger = LoggerConfigurator().configure()
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
-def init_db():
-    """Inicializa la base de datos y las tablas necesarias si no existen."""
+def connect_without_db():
+    """Establece conexión con el servidor MySQL sin especificar la base de datos."""
     try:
-        # Conexión inicial sin especificar la base de datos para crearla si es necesario
         connection = mysql.connector.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
             port=os.getenv("DB_PORT")
         )
-        
         if connection.is_connected():
-            cursor = connection.cursor()
-            # Verificar si la base de datos existe; si no, crearla
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {os.getenv('DB_NAME')}")
-            print("Base de datos verificada/creada exitosamente.")
-        
-        # Conectar ahora especificando la base de datos para crear las tablas
+            logger.info("Conexión al servidor MySQL establecida.")
+            return connection
+    except Error as e:
+        logger.error("Error al conectar con MySQL: %s", e)
+        return None
+
+def create_database(connection):
+    """Crea la base de datos si no existe."""
+    try:
+        cursor = connection.cursor()
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {os.getenv('DB_NAME')}")
+        logger.info("Base de datos verificada/creada exitosamente.")
+    except Error as e:
+        logger.error("Error al crear la base de datos: %s", e)
+    finally:
+        cursor.close()
+
+def create_tables(connection):
+    """Crea las tablas necesarias en la base de datos."""
+    try:
         connection.database = os.getenv("DB_NAME")
-        
-        # Crear tabla usuarios si no existe
+        cursor = connection.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS usuarios (
                 user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,8 +56,6 @@ def init_db():
                 first_connection_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
-        # Crear tabla mensajes si no existe
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS mensajes (
                 message_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,13 +65,20 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES usuarios(user_id)
             )
         """)
-        
-        print("Tablas verificadas/creadas exitosamente.")
-
+        logger.info("Tablas verificadas/creadas exitosamente.")
     except Error as e:
-        print(f"Error al conectar con MySQL: {e}")
-    
+        logger.error("Error al crear las tablas: %s", e)
     finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
+        cursor.close()
+
+def init_db():
+    """Inicializa la base de datos y las tablas necesarias si no existen."""
+    connection = connect_without_db()
+    if connection:
+        try:
+            create_database(connection)
+            create_tables(connection)
+        finally:
+            if connection.is_connected():
+                connection.close()
+                logger.info("Conexión con el servidor MySQL cerrada.")

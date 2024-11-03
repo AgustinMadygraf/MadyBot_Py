@@ -6,3 +6,4 @@ src/install/__pycache__/
 
 src/logs/sistema.log
 src/logs/__pycache__/
+src/model/__pycache__/

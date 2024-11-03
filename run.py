@@ -1,14 +1,10 @@
 """
 Path: run.py
 """
-
-import os
 from flask import Flask
 from src.controllers.data_controller import data_controller
-import mysql.connector
-from mysql.connector import Error
 from dotenv import load_dotenv
-from src.model.db_setup import init_db  # Importar el nuevo módulo de inicialización de la base de datos
+from src.model.db_setup import init_db  
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger al inicio del script
