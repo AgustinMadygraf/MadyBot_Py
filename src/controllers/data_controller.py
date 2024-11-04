@@ -45,7 +45,7 @@ def receive_data():
         message_output = "Error de ejecución en el generador de respuesta."
         logger.error("Error de ejecución: %s", e)
         code = 500
-    except Exception as e:  # Captura de respaldo para errores no anticipados
+    except Exception as e:  # pylint: disable=W0718
         message_output = "Error desconocido en la generación de la respuesta."
         logger.error("Error no anticipado: %s", e)
         code = 500
