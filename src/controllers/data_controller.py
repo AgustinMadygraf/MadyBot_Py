@@ -37,9 +37,17 @@ def receive_data():
     try:
         message_output = response_generator.generate_response(data['prompt_user'])
         code = 200
-    except Exception as e:
-        message_output = "Error en la generación de la respuesta."
-        logger.error("Error al generar mensaje: %s", e)
+    except (ConnectionError, TimeoutError) as e:
+        message_output = "Error de conexión al generar la respuesta."
+        logger.error("Error de conexión: %s", e)
+        code = 503  # Servicio no disponible
+    except RuntimeError as e:  # Ejemplo de error de ejecución específico
+        message_output = "Error de ejecución en el generador de respuesta."
+        logger.error("Error de ejecución: %s", e)
+        code = 500
+    except Exception as e:  # Captura de respaldo para errores no anticipados
+        message_output = "Error desconocido en la generación de la respuesta."
+        logger.error("Error no anticipado: %s", e)
         code = 500
 
     logger.info("Generated: \n| %s", message_output)
