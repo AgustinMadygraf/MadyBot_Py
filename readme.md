@@ -75,14 +75,12 @@ Si el JSON se recibe correctamente, la respuesta será:
 }
 ```
 
-## Ejemplo de Solicitud con cURL
+## Ejemplo de Solicitud 
 
-Puedes probar el endpoint usando cURL:
+Puedes probar el endpoint :
 
 ```bash
-curl -X POST http://0.0.0.0:5000/receive-data \
--H "Content-Type: application/json" \
--d '{"message": "Hello, MadyBotPy!", "user_id": "12345"}'
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/receive-data" -Method Post -Headers @{ "Content-Type" = "application/json" } -Body '{"message": "Hello, MadyBotPy!", "user_id": "12345"}'
 ```
 
 ## Recomendaciones para Extensiones Futuras

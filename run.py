@@ -27,7 +27,7 @@ db_connector = DatabaseConnector()
 
 # Crear una instancia de DatabaseInitializer usando TableCreator
 table_creator = TableCreator()
-db_initializer = DatabaseInitializer(connector=db_connector, table_creator=table_creator)
+db_initializer = DatabaseInitializer(db_connector, table_creator)
 
 # Inicializar la base de datos y las tablas
 db_initializer.initialize_database()
