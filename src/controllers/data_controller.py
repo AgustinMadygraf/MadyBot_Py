@@ -2,13 +2,18 @@
 Path: src/controllers/data_controller.py
 """
 
+import os
 from flask import Blueprint, request
 from marshmallow import Schema, fields, ValidationError
+import google.generativeai as genai
+from dotenv import load_dotenv
 from src.views.data_view import render_json_response
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger al inicio del script
 logger = LoggerConfigurator().configure()
+
+load_dotenv()
 
 # Crear un blueprint para el controlador
 data_controller = Blueprint('data_controller', __name__)
@@ -64,15 +69,14 @@ def receive_data():
     # Log de recepción exitosa
     logger.info("Received message: \n| %s", data)
     code = 200
-    message_output = generacion_de_respuesta(message_input)
+    genai.configure(api_key=os.getenv('API_KEY_AISTUDIO'))
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    try:
+        response = model.generate_content(message_input)
+        message_output = response.text
+    except Exception as e:
+        message_output = response.prompt_feedback
+        logger.error("Error al generar mensaje: %s", e)
+
+    logger.info("Generated: \n| %s", message_output)
     return render_json_response(code, message_output)
-
-
-def generacion_de_respuesta(message_input):
-    """
-    Genera una respuesta aleatoria basada en el mensaje de entrada.
-    """
-    message_output = f"Respuesta generada para el mensaje: {message_input}"
-    logger.info("Generated response: \n| %s", message_output)
-    
-    return message_output
