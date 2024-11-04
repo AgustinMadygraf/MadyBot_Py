@@ -69,10 +69,24 @@ def receive_data():
     # Log de recepción exitosa
     logger.info("Received message: \n| %s", data)
     code = 200
-    genai.configure(api_key=os.getenv('API_KEY_AISTUDIO'))
-    model = genai.GenerativeModel('gemini-1.5-flash')
     try:
-        response = model.generate_content(message_input)
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+
+        # Create the model
+        generation_config = {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 8192,
+        "response_mime_type": "text/plain",
+        }
+
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash",
+            generation_config=generation_config, system_instruction="""Eres un asistente virtual de
+             Madygraf Bajo Gestión Obrera, tu propósito es brindar asistencia técnica y capacitaciones
+             para implementar ERP Tryton.""",)
+        chat_session = model.start_chat( history=[])
+        response = chat_session.send_message(message_input)
         message_output = response.text
     except Exception as e:
         message_output = response.prompt_feedback
