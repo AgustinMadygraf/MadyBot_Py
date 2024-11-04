@@ -5,6 +5,7 @@ Path: run.py
 
 import os
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 from src.controllers.data_controller import data_controller
 from src.model.database_connector import DatabaseConnector
@@ -21,6 +22,7 @@ logger.debug("Logger configurado correctamente al inicio del servidor.")
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Crear una instancia de DatabaseConnector
 db_connector = DatabaseConnector()
