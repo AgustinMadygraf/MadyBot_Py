@@ -21,17 +21,17 @@ class DataSchema(Schema):
     Atributos:
         user_id (fields.String): Campo obligatorio que representa el ID del usuario. 
                                  Devuelve un mensaje de error si no se proporciona.
-        message (fields.String): Campo obligatorio que representa el mensaje del usuario. 
+        prompt_user (fields.String): Campo obligatorio que representa el mensaje del usuario. 
                                  Debe tener una longitud máxima de 255 caracteres. 
                                  Devuelve un mensaje de error si no se proporciona 
                                  o si excede los 255 caracteres.
     """
     user_id = fields.String(required=True,
         error_messages={"required":"El campo 'user_id' es obligatorio."})
-    message = fields.String(required=True,
+    prompt_user = fields.String(required=True,
         validate=lambda m: len(m) <= 255,
-        error_messages={"required": "El campo 'message' es obligatorio.",
-            "validator_failed":"El campo 'message' no debe exceder los 255 caracteres."})
+        error_messages={"required": "El campo 'prompt_user' es obligatorio.",
+            "validator_failed":"El campo 'prompt_user' no debe exceder los 255 caracteres."})
 
 # Instanciar el esquema
 data_schema = DataSchema()
@@ -59,7 +59,7 @@ def receive_data():
         message_output = "Datos inválidos en la solicitud."
         return render_json_response(code, message_output)
     # Extraer valores validados
-    message_input = data['message']
+    message_input = data['prompt_user']
 
     # Log de recepción exitosa
     logger.info("Received message: \n| %s", data)

@@ -20,7 +20,7 @@ def render_json_response(code, message):
     :return: Respuesta JSON.
     """
     response = {
-        "message": message
+        "response_MadyBot": message
     }
 
     logger.info("response: %s", response)
