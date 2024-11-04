@@ -6,7 +6,7 @@ Path: src/model/database_connector.py
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from src.logs.config_logger import LoggerConfigurator
 from src.model.database_connector_interface import DatabaseConnectorInterface
 
@@ -14,7 +14,14 @@ from src.model.database_connector_interface import DatabaseConnectorInterface
 logger = LoggerConfigurator().configure()
 
 # Cargar variables de entorno desde el archivo .env
-load_dotenv()
+try:
+    if not find_dotenv():
+        raise FileNotFoundError(".env file not found")
+    load_dotenv()
+except FileNotFoundError as e:
+    logger.error("Error loading .env file: %s", e)
+    print(".env file not found. Please create a .env file with the necessary environment variables.")
+    exit()
 
 class DatabaseConnector(DatabaseConnectorInterface):
     """Clase para manejar la conexión a la base de datos MySQL utilizando SQLAlchemy."""

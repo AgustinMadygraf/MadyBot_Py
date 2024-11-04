@@ -1,0 +1,2 @@
+2024-11-04 17:14:12,328 - root - ERROR - table_creator.py:51 - Error al crear las tablas: (mysql.connector.errors.ProgrammingError) 1049 (42000): Unknown database 'madyboonnector.errors.ProgrammingError) 1049 (42000): Unknown database 'madybot_db'
+(Background on this error at: https://sqlalche.me/e/20/f405)

@@ -80,7 +80,7 @@ Si el JSON se recibe correctamente, la respuesta será:
 Puedes probar el endpoint :
 
 ```bash
-Invoke-RestMethod -Uri "http://127.0.0.1:5000/receive-data" -Method Post -Headers @{ "Content-Type" = "application/json" } -Body '{"message": "Hello, MadyBotPy!", "user_id": "12345"}'
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/receive-data" -Method Post -Headers @{ "Content-Type" = "application/json" } -Body '{"prompt_user": "Hello, MadyBotPy!", "user_id": "12345"}'
 ```
 
 ## Recomendaciones para Extensiones Futuras
