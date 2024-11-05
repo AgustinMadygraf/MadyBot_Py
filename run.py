@@ -19,7 +19,16 @@ logger = LoggerConfigurator().configure()
 logger.debug("Logger configurado correctamente al inicio del servidor.")
 
 # Cargar variables de entorno desde el archivo .env
-load_dotenv()
+try:
+    logger.debug("Intentando cargar el archivo .env")
+    if not load_dotenv():
+        raise FileNotFoundError(".env file not found")
+    logger.debug(".env file cargado correctamente")
+except FileNotFoundError as e:
+    logger.error("Error loading .env file: %s", e)
+    logger.debug("Asegúrate de que el archivo .env existe en el directorio raíz del proyecto")
+    print(".env file not found. Please create a .env file with the necessary environment variables.")
+    exit(1)
 
 app = Flask(__name__)
 CORS(app)

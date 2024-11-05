@@ -47,12 +47,33 @@ def verificar_dependencias(manager, requirements_file):
     else:
         print(f"El archivo {requirements_file} no fue encontrado.")
 
+def actualizar_setuptools(python_exec):
+    """Actualiza setuptools a la última versión."""
+    print("Actualizando setuptools...")
+    try:
+        result = subprocess.run([python_exec, '-m', 'pip', 'install', '--upgrade', 'setuptools'], check=True, capture_output=True, text=True)
+        print(result.stdout)
+        print(result.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Error al actualizar setuptools: {e}")
+        print(e.stdout)
+        print(e.stderr)
+        raise
+
 def actualizar_pipenv(python_exec):
     """Verifica si pipenv está actualizado y lo actualiza si es necesario."""
     if not PythonInterpreterUtils.is_pipenv_updated(python_exec):
         print("Actualizando dependencias con pipenv...")
-        subprocess.check_call([python_exec, '-m', 'pipenv', 'install',
-                               '--python', python_exec])
+        try:
+            result = subprocess.run([python_exec, '-m', 'pipenv', 'install',
+                                     '--python', python_exec], check=True, capture_output=True, text=True)
+            print(result.stdout)
+            print(result.stderr)
+        except subprocess.CalledProcessError as e:
+            print(f"Error al actualizar pipenv: {e}")
+            print(e.stdout)
+            print(e.stderr)
+            raise
 
 def instalar_proyecto():
     """Instala el proyecto utilizando ProjectInstaller."""
@@ -73,5 +94,6 @@ if __name__ == "__main__":
 
     actualizar_pip(pip_updater)
     verificar_dependencias(installer_manager, 'requirements.txt')
+    actualizar_setuptools(python_executable)
     actualizar_pipenv(python_executable)
     instalar_proyecto()
