@@ -10,7 +10,10 @@ from src.install.project_name_utils import ProjectNameRetriever
 from src.install.shortcut_creation_strategy import (
     ShortcutCreationStrategy, DefaultShortcutCreationStrategy
 )
-from src.logs.config_logger import logger
+from src.logs.config_logger import LoggerConfigurator
+
+logger = LoggerConfigurator().configure()
+logger.debug("Logger configurado correctamente al inicio del servidor.")
 
 class BaseInstaller(ABC):
     """
