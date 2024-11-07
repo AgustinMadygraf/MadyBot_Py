@@ -2,3 +2,5 @@
 (Background on this error at: https://sqlalche.me/e/20/f405)
 
 Falta crear base de datos en caso de que no exista
+
+2024-11-05 20:02:59,623 - root - ERROR - El archivo de icono 'C:\AppServ\www\MadyBot_Py\static\favicon.ico' no existe.
