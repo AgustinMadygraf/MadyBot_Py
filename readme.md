@@ -47,9 +47,7 @@ python run.py
 Esto ejecutará el servidor en `http://0.0.0.0:5000`.
 
 ## Endpoint
-
 ### `POST /receive-data`
-
 Este endpoint permite enviar datos JSON al servidor para su procesamiento.
 
 - **URL**: `/receive-data`
@@ -58,30 +56,47 @@ Este endpoint permite enviar datos JSON al servidor para su procesamiento.
 - **Cuerpo de la Solicitud**:
   ```json
   {
-    "message": "Texto del mensaje",
-    "user_id": "ID del usuario"
+    "prompt_user": "Texto del mensaje",
+    "user_data": {
+      "id": "ID del usuario",
+      "browserData": {
+        "userAgent": "Agente de usuario del navegador",
+        "screenResolution": "Resolución de pantalla",
+        "language": "Idioma del navegador",
+        "platform": "Plataforma del navegador"
+      }
+    },
+    "stream": false
   }
   ```
 
-#### Ejemplo de Respuesta
+#### Ejemplo de Solicitud
+Puedes probar el endpoint con el siguiente comando:
+```bash
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/receive-data" -Method Post -Headers @{ "Content-Type" = "application/json" } -Body '{"prompt_user": "Hello, MadyBotPy!", "user_data": {"id": "12345", "browserData": {"userAgent": "Mozilla/5.0", "screenResolution": "1920x1080", "language": "es-ES", "platform": "Win32"}}, "stream": false}'
+```
 
-Si el JSON se recibe correctamente, la respuesta será:
+#### Ejemplo de Respuesta
+Si el JSON se recibe y procesa correctamente, la respuesta será:
 ```json
 {
-  "status": "success",
-  "message": "Data received successfully",
-  "received_message": "Texto del mensaje",
-  "user_id": "ID del usuario"
+  "response_MadyBot": "Texto de la respuesta generada"
 }
 ```
 
-## Ejemplo de Solicitud 
-
-Puedes probar el endpoint :
-
-```bash
-Invoke-RestMethod -Uri "http://127.0.0.1:5000/receive-data" -Method Post -Headers @{ "Content-Type" = "application/json" } -Body '{"prompt_user": "Hello, MadyBotPy!", "user_id": "12345"}'
-```
+#### Posibles Errores
+- **400 Bad Request**: Datos inválidos en la solicitud.
+  ```json
+  {
+    "response_MadyBot": "Datos inválidos en la solicitud."
+  }
+  ```
+- **500 Internal Server Error**: Error desconocido en la generación de la respuesta.
+  ```json
+  {
+    "response_MadyBot": "Error desconocido en la generación de la respuesta."
+  }
+  ```
 
 ## Recomendaciones para Extensiones Futuras
 

@@ -29,3 +29,12 @@ class ResponseGenerator:
         chat_session = self.model.start_chat(history=[])
         response = chat_session.send_message(message_input)
         return response.text
+
+    def generate_response_streaming(self, message_input, chunk_size=100):
+        "Genera una respuesta en base al mensaje de entrada, en bloques de texto."
+        chat_session = self.model.start_chat(history=[])
+        response = chat_session.send_message(message_input)
+        offset = 0
+        while offset < len(response.text):
+            yield response.text[offset:offset+chunk_size]
+            offset += chunk_size

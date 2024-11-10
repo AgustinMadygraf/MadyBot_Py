@@ -30,18 +30,22 @@ def receive_data():
         data = data_validator.validate(request.json)
     except ValidationError as err:
         logger.warning("Error de validación en la solicitud: %s", err.messages)
-        code = 400
-        return render_json_response(code, "Datos inválidos en la solicitud.")
-
-    # Procesar el mensaje de entrada y generar la respuesta
+        return render_json_response(400, "Datos inválidos en la solicitud.")
+    
     try:
-        message_output = response_generator.generate_response(data['prompt_user'])
+        # Verificar el valor de 'stream' en el JSON de la solicitud
+        if data.get('stream'):
+            # Usar generate_response_streaming si 'stream' es True
+            message_output = ''.join(response_generator.generate_response_streaming(data['prompt_user']))
+        else:
+            # Usar generate_response si 'stream' es None o False
+            message_output = response_generator.generate_response(data['prompt_user'])
         code = 200
     except (ConnectionError, TimeoutError) as e:
         message_output = "Error de conexión al generar la respuesta."
         logger.error("Error de conexión: %s", e)
         code = 503  # Servicio no disponible
-    except RuntimeError as e:  # Ejemplo de error de ejecución específico
+    except RuntimeError as e:
         message_output = "Error de ejecución en el generador de respuesta."
         logger.error("Error de ejecución: %s", e)
         code = 500
@@ -49,6 +53,6 @@ def receive_data():
         message_output = "Error desconocido en la generación de la respuesta."
         logger.error("Error no anticipado: %s", e)
         code = 500
-
+    
     logger.info("Generated: \n| %s", message_output)
     return render_json_response(code, message_output)
