@@ -18,22 +18,25 @@ handlers:
     class: logging.FileHandler
     level: DEBUG
     filename: "src/logs/sistema.log"
-    formatter: simpleFormatter
+    formatter: detailedFormatter
     encoding: utf-8
 loggers:
   "":
     level: DEBUG
     handlers:
       - file_handler
+      - console_dev
 formatters:
   simpleFormatter:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
   colorFormatter:
     "()": colorlog.ColoredFormatter
-    format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format: "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
     log_colors:
       DEBUG:    "bold_blue"
       INFO:     "bold_green"
       WARNING:  "bold_yellow"
       ERROR:    "bold_red"
       CRITICAL: "bold_purple"
+  detailedFormatter:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"

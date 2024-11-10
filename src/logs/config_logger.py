@@ -36,6 +36,7 @@ class LoggerConfigurator:
         self.reload_config()  # Initial configuration
         self._configured = True
         self.start_watchdog()
+        return logging.getLogger()
 
     def reload_config(self):
         """Reloads logging configuration from YAML file."""
@@ -49,20 +50,17 @@ class LoggerConfigurator:
                 logging.debug("Logger reconfigured for %s environment.", environment)
             else:
                 raise ValueError("Empty configuration loaded.")
-        except yaml.YAMLError as e:  # Específico para errores en YAML
+        except yaml.YAMLError as e:
             logging.basicConfig(level=self.default_level)
             logging.error(
                 "YAML error loading logging configuration: %s. Using default settings.", e)
-
-        except ValueError as e:  # Para valores inválidos
+        except ValueError as e:
             logging.basicConfig(level=self.default_level)
             logging.error("Invalid configuration loaded: %s. Using default settings.", e)
-
-        except (OSError, IOError) as e:  # Para errores de archivo y E/S
+        except (OSError, IOError) as e:
             logging.basicConfig(level=self.default_level)
             logging.error(
                 "File-related error loading logging configuration: %s. Using default settings.", e)
-
         root_logger = logging.getLogger()
         self._add_custom_filters(root_logger)
 

@@ -3,7 +3,6 @@ Path: run.py
 
 """
 
-import os
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -13,7 +12,6 @@ from src.model.database_initializer import DatabaseInitializer
 from src.model.table_creator import TableCreator
 from src.logs.config_logger import LoggerConfigurator
 
-os.system('cls' if os.name == 'nt' else 'clear')
 # Configuración del logger al inicio del script
 logger = LoggerConfigurator().configure()
 logger.debug("Logger configurado correctamente al inicio del servidor.")
