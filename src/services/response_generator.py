@@ -4,7 +4,6 @@ Este módulo contiene una clase que genera respuestas utilizando un modelo de le
 """
 import time
 import os
-import sys
 import google.generativeai as genai
 from src.logs.config_logger import LoggerConfigurator
 
@@ -41,7 +40,7 @@ class ResponseGenerator:
         logger.info("Respuesta generada: %s", response.text)
         return response.text
 
-    def generate_response_streaming(self, message_input, chunk_size=100):
+    def generate_response_streaming(self, message_input, chunk_size=10):
         "Genera una respuesta en base al mensaje de entrada, en bloques de texto."
         logger.info("Generando respuesta en modo streaming para el mensaje: %s", message_input)
         chat_session = self.model.start_chat(history=[])
@@ -53,8 +52,13 @@ class ResponseGenerator:
         while offset < len(response.text):
             chunk = response.text[offset:offset+chunk_size]
             full_response += chunk
-            sys.stdout.write("\r" + full_response)
-            sys.stdout.flush()
+            self.clear_console()
+            print(full_response)
             offset += chunk_size
-            time.sleep(5)
+            time.sleep(0.2)
         yield full_response
+
+    @staticmethod
+    def clear_console():
+        "Limpia la consola según el sistema operativo."
+        os.system('cls' if os.name == 'nt' else 'clear')
