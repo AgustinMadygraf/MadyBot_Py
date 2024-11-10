@@ -66,7 +66,8 @@ Este endpoint permite enviar datos JSON al servidor para su procesamiento.
         "platform": "Plataforma del navegador"
       }
     },
-    "stream": false
+    "stream": false,
+    "datetime": "unixtime"
   }
   ```
 

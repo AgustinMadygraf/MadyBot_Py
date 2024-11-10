@@ -9,48 +9,33 @@ from marshmallow import Schema, fields
 class BrowserDataSchema(Schema):
     """
     BrowserDataSchema is a Marshmallow schema for validating browser data.
-
-    Attributes:
-        userAgent (str): The user agent string of the browser. This field is required.
-        screenResolution (str): The screen resolution of the device. This field is required.
-        language (str): The language setting of the browser. This field is required.
-        platform (str): The platform on which the browser is running. This field is required.
-
-    Error Messages:
-        userAgent: "El campo 'userAgent' es obligatorio."
-        screenResolution: "El campo 'screenResolution' es obligatorio."
-        language: "El campo 'language' es obligatorio."
-        platform: "El campo 'platform' es obligatorio."
     """
-    userAgent = fields.String(required=True, error_messages={"required":
-    "El campo 'userAgent' es obligatorio."})
-    screenResolution = fields.String(required=True, error_messages={"required":
-    "El campo 'screenResolution' es obligatorio."})
-    language = fields.String(required=True, error_messages={"required":
-    "El campo 'language' es obligatorio."})
-    platform = fields.String(required=True, error_messages={"required":
-    "El campo 'platform' es obligatorio."})
+    userAgent = fields.String(required=True, error_messages={"required": "El campo 'userAgent' es obligatorio."})
+    screenResolution = fields.String(required=True, error_messages={"required": "El campo 'screenResolution' es obligatorio."})
+    language = fields.String(required=True, error_messages={"required": "El campo 'language' es obligatorio."})
+    platform = fields.String(required=True, error_messages={"required": "El campo 'platform' es obligatorio."})
 
 class UserDataSchema(Schema):
     "Esquema de validación para los datos del usuario."
     id = fields.String(required=True, error_messages={"required": "El campo 'id' es obligatorio."})
-    browserData = fields.Nested(BrowserDataSchema, required=True, error_messages={"required":
-    "El campo 'browserData' es obligatorio."})
+    browserData = fields.Nested(BrowserDataSchema, required=True, error_messages={"required": "El campo 'browserData' es obligatorio."})
 
 class DataSchema(Schema):
     "Esquema de validación para los datos recibidos en el controlador."
     prompt_user = fields.String(
         required=True,
         validate=lambda m: len(m) <= 255,
-        error_messages={"required": "El campo 'prompt_user' es obligatorio.", "validator_failed":
-        "El campo 'prompt_user' no debe exceder los 255 caracteres."}
+        error_messages={"required": "El campo 'prompt_user' es obligatorio.", "validator_failed": "El campo 'prompt_user' no debe exceder los 255 caracteres."}
     )
     stream = fields.Boolean(
         missing=False,
         error_messages={"invalid": "El campo 'stream' debe ser un valor booleano."}
     )
-    user_data = fields.Nested(UserDataSchema, required=True, error_messages={"required":
-    "El campo 'user_data' es obligatorio."})
+    user_data = fields.Nested(UserDataSchema, required=True, error_messages={"required": "El campo 'user_data' es obligatorio."})
+    datetime = fields.Integer(
+        missing=False,
+        error_messages={"invalid": "El campo 'datetime' debe ser un valor entero."}
+    )
 
 class DataSchemaValidator:
     """
