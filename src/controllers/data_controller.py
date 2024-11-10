@@ -28,6 +28,7 @@ def receive_data():
     try:
         logger.info("Request JSON: \n| %s \n", request.json)
         data = data_validator.validate(request.json)
+        logger.info("Datos validados: %s", data)
     except ValidationError as err:
         logger.warning("Error de validación en la solicitud: %s", err.messages)
         return render_json_response(400, "Datos inválidos en la solicitud.")
@@ -35,9 +36,11 @@ def receive_data():
     try:
         # Verificar el valor de 'stream' en el JSON de la solicitud
         if data.get('stream'):
+            logger.info("Generando respuesta en modo streaming.")
             # Usar generate_response_streaming si 'stream' es True
             message_output = ''.join(response_generator.generate_response_streaming(data['prompt_user']))
         else:
+            logger.info("Generando respuesta en modo normal.")
             # Usar generate_response si 'stream' es None o False
             message_output = response_generator.generate_response(data['prompt_user'])
         code = 200
