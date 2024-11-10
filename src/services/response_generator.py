@@ -5,6 +5,7 @@ Este módulo contiene una clase que genera respuestas utilizando un modelo de le
 import time
 import os
 import google.generativeai as genai
+from src.views.data_view import render_json_response
 from src.logs.config_logger import LoggerConfigurator
 
 # Configuración del logger
@@ -54,6 +55,7 @@ class ResponseGenerator:
             full_response += chunk
             self.clear_console()
             print(full_response)
+            render_json_response(code=200, message=full_response, stream=True)
             offset += chunk_size
             time.sleep(0.3)
         yield full_response
