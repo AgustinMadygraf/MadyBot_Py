@@ -28,7 +28,7 @@ def render_json_response(code, message, stream = False):
         return jsonify(response), code
     else:
         response = {
-            "response_MadyBot_chunk": message
+            "response_MadyBot_stream": message
         }
 
         logger.info("response: %s", response)

@@ -47,14 +47,14 @@ class ResponseGenerator:
         chat_session = self.model.start_chat(history=[])
         logger.info("Sesión de chat iniciada.")
         response = chat_session.send_message(message_input)
-        logger.info("Respuesta generada: %s", response.text)
+        #logger.info("Respuesta generada: %s", response.text)
         offset = 0
         full_response = ""
         while offset < len(response.text):
             chunk = response.text[offset:offset+chunk_size]
             full_response += chunk
             self.clear_console()
-            print(full_response)
+            #print(full_response)
             render_json_response(code=200, message=full_response, stream=True)
             offset += chunk_size
             time.sleep(0.3)
