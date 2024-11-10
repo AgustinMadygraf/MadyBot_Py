@@ -4,6 +4,7 @@ Este módulo contiene una clase que genera respuestas utilizando un modelo de le
 """
 import time
 import os
+import sys
 import google.generativeai as genai
 from src.logs.config_logger import LoggerConfigurator
 
@@ -48,11 +49,12 @@ class ResponseGenerator:
         response = chat_session.send_message(message_input)
         logger.info("Respuesta generada: %s", response.text)
         offset = 0
+        full_response = ""
         while offset < len(response.text):
             chunk = response.text[offset:offset+chunk_size]
-            logger.info("Enviando chunk: %s", chunk)
-            print(f"Enviando chunk: {chunk}")
-            yield chunk
+            full_response += chunk
+            sys.stdout.write("\r" + full_response)
+            sys.stdout.flush()
             offset += chunk_size
             time.sleep(5)
-
+        yield full_response
