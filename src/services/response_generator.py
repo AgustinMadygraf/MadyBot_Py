@@ -2,7 +2,7 @@
 Path: src/services/response_generator.py
 Este módulo contiene una clase que genera respuestas utilizando un modelo de lenguaje generativo.
 """
-
+import time
 import os
 import google.generativeai as genai
 from src.logs.config_logger import LoggerConfigurator
@@ -51,5 +51,8 @@ class ResponseGenerator:
         while offset < len(response.text):
             chunk = response.text[offset:offset+chunk_size]
             logger.info("Enviando chunk: %s", chunk)
+            print(f"Enviando chunk: {chunk}")
             yield chunk
             offset += chunk_size
+            time.sleep(5)
+
