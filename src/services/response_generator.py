@@ -55,7 +55,7 @@ class ResponseGenerator:
             self.clear_console()
             print(full_response)
             offset += chunk_size
-            time.sleep(0.2)
+            time.sleep(0.3)
         yield full_response
 
     @staticmethod

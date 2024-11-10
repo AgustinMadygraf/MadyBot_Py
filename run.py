@@ -25,7 +25,7 @@ try:
 except FileNotFoundError as e:
     logger.error("Error loading .env file: %s", e)
     logger.debug("Asegúrate de que el archivo .env existe en el directorio raíz del proyecto")
-    print(".env file not found. Please create a .env file with the necessary environment variables.")
+    print("Please create a .env file with the necessary environment variables.")
     exit(1)
 
 app = Flask(__name__)
