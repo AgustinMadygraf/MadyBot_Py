@@ -8,7 +8,7 @@ from src.logs.config_logger import LoggerConfigurator
 
 logger = LoggerConfigurator().configure()
 
-def render_json_response(code, message):
+def render_json_response(code, message, stream = False):
     """
     Genera una respuesta JSON estándar con metadatos adicionales.
     
@@ -19,9 +19,17 @@ def render_json_response(code, message):
     :param detailed: Indica si la respuesta debe ser detallada (por defecto False).
     :return: Respuesta JSON.
     """
-    response = {
-        "response_MadyBot": message
-    }
+    if not stream:
+        response = {
+            "response_MadyBot": message
+        }
 
-    logger.info("response: %s", response)
-    return jsonify(response), code
+        logger.info("response: %s", response)
+        return jsonify(response), code
+    else:
+        response = {
+            "response_MadyBot_chunk": message
+        }
+
+        logger.info("response: %s", response)
+        return jsonify(response), code

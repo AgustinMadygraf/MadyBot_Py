@@ -31,8 +31,8 @@ def receive_data():
         logger.info("Datos validados: %s", data)
     except ValidationError as err:
         logger.warning("Error de validación en la solicitud: %s", err.messages)
-        return render_json_response(400, "Datos inválidos en la solicitud.")
-    
+        message_output = "Datos inválidos en la solicitud."
+        return render_json_response(400, message_output, stream = False)
     try:
         # Verificar el valor de 'stream' en el JSON de la solicitud
         if data.get('stream'):
@@ -56,6 +56,5 @@ def receive_data():
         message_output = "Error desconocido en la generación de la respuesta."
         logger.error("Error no anticipado: %s", e)
         code = 500
-    
     logger.info("Generated: \n| %s", message_output)
-    return render_json_response(code, message_output)
+    return render_json_response(code, message_output, stream = False)
