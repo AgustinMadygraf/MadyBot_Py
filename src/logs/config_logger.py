@@ -45,9 +45,14 @@ class LoggerConfigurator:
             if config:
                 environment = os.getenv("ENV", "dev")
                 console_handler = "console_dev" if environment == "dev" else "console_prod"
-                config['loggers']['']['handlers'].append(console_handler)
-                logging.config.dictConfig(config)
-                logging.debug("Logger reconfigured for %s environment.", environment)
+                
+                # Verificar la existencia de las claves antes de acceder a ellas
+                if 'loggers' in config and '' in config['loggers']:
+                    config['loggers']['']['handlers'].append(console_handler)
+                    logging.config.dictConfig(config)
+                    logging.debug("Logger reconfigured for %s environment.", environment)
+                else:
+                    raise ValueError("Invalid logging configuration structure. Key 'loggers' or default logger missing.")
             else:
                 raise ValueError("Empty configuration loaded.")
         except yaml.YAMLError as e:
@@ -66,10 +71,15 @@ class LoggerConfigurator:
 
     def start_watchdog(self):
         """Starts a watchdog observer to monitor changes in the logging config file."""
+        config_dir = os.path.dirname(self.config_strategy.config_path)
+        
+        if not os.path.exists(config_dir):
+            logging.error("Config directory does not exist: %s", config_dir)
+            return  # Evita iniciar el observador si la ruta no es válida
+        
         observer = Observer()
         event_handler = ConfigChangeHandler(self)
-        observer.schedule(event_handler, path=os.path.dirname(self.config_strategy.config_path),
-                          recursive=False)
+        observer.schedule(event_handler, path=config_dir, recursive=False)
         observer.start()
         logging.info("Started watchdog for dynamic logging configuration reloading.")
 
