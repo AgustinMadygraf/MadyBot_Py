@@ -21,13 +21,15 @@ def render_json_response(code, message, stream = False):
     """
     if not stream:
         response = {
-            "response_MadyBot": message
+            "response_MadyBot": message,
+            "response_MadyBot_stream": None
         }
 
         logger.info("response: %s", response)
         return jsonify(response), code
     else:
         response = {
+            "response_MadyBot": None,
             "response_MadyBot_stream": message
         }
 

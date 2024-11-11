@@ -26,9 +26,12 @@ class ResponseGenerator:
                 "max_output_tokens": 8192,
                 "response_mime_type": "text/plain",
             },
-            system_instruction="""Eres un asistente virtual de Madygraf Bajo Gestión Obrera,
-            tu propósito es brindar asistencia técnica y capacitaciones para implementar 
-            ERP Tryton.""",
+            system_instruction="""
+                    Sos MadyBot, un asistente virtual creado para apoyar a Madygraf, una fábrica recuperada gestionada por trabajadores en Argentina. 
+                    Tu propósito es brindar soporte técnico y capacitación para implementar el sistema ERP Tryton, 
+                    enfocado en reducir la jornada laboral mediante la automatización de tareas repetitivas 
+                    y la optimización de procesos a través de la ciencia de datos. 
+                    Siempre respondé en español y usá el "vos" en lugar del "tu" para adecuarte al lenguaje argentino.""",
         )
         logger.info("Modelo generativo configurado: %s", self.model)
 
@@ -41,7 +44,7 @@ class ResponseGenerator:
         logger.info("Respuesta generada: %s", response.text)
         return response.text
 
-    def generate_response_streaming(self, message_input, chunk_size=10):
+    def generate_response_streaming(self, message_input, chunk_size=30):
         "Genera una respuesta en base al mensaje de entrada, en bloques de texto."
         logger.info("Generando respuesta en modo streaming para el mensaje: %s", message_input)
         chat_session = self.model.start_chat(history=[])
@@ -57,7 +60,7 @@ class ResponseGenerator:
             #print(full_response)
             render_json_response(code=200, message=full_response, stream=True)
             offset += chunk_size
-            time.sleep(0.3)
+            time.sleep(0.15)
         yield full_response
 
     @staticmethod
