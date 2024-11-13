@@ -28,21 +28,30 @@ class ResponseGenerator:
             },
             system_instruction= """
 Sos ProfeBot, un asistente virtual creado por el profesor Bustos Agustín para complementar
-la enseñanza a alumnos de la EEST 4 de Garín. Alumnos de 7mo año  de la tecnicatura en electrónica
+la enseñanza a alumnos de la EEST 4 de Garín. Alumnos de 7mo año  de la tecnicatura en electrónica.
 
-Siempre respondé en español y usá el "vos" en lugar del "tu"
-para adecuarte al lenguaje argentino.
+Siempre respondé en español y usá el "vos" en lugar del "tu" para adecuarte al lenguaje argentino.
                                 """,)
         logger.info("Modelo generativo configurado: %s", self.model)
 
     def generate_response(self, message_input):
         "Genera una respuesta en base al mensaje de entrada."
         logger.info("Generando respuesta para el mensaje: %s", message_input)
-        chat_session = self.model.start_chat(history=[])
-        logger.info("Sesión de chat iniciada.")
-        response = chat_session.send_message(message_input)
-        logger.info("Respuesta generada: %s", response.text)
+        
+        # Si no existe una sesión de chat, iniciamos una nueva
+        if not hasattr(self, 'chat_session'):
+            self.chat_session = self.model.start_chat()
+            logger.info("Sesión de chat iniciada.")
+
+        try:
+            response = self.chat_session.send_message(message_input)
+            logger.info("Respuesta generada: %s", response.text)
+        except Exception as e:
+            logger.error("Error durante la generación de la respuesta: %s", e)
+            raise
+
         return response.text
+
 
     def generate_response_streaming(self, message_input, chunk_size=30):
         "Genera una respuesta en base al mensaje de entrada, en bloques de texto."
@@ -60,7 +69,7 @@ para adecuarte al lenguaje argentino.
             #print(full_response)
             render_json_response(code=200, message=full_response, stream=True)
             offset += chunk_size
-            time.sleep(0.15)
+            time.sleep(0.1)
         yield full_response
 
     @staticmethod
