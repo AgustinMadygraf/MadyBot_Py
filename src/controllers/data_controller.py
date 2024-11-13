@@ -30,7 +30,7 @@ def receive_data():
         data = data_validator.validate(request.json)
         logger.info("Datos validados: %s", data)
     except ValidationError as err:
-        logger.warning("Error de validación en la solicitud: %s", err.messages)
+        logger.error("Error de validación en la solicitud: %s", err.messages)
         message_output = "Datos inválidos en la solicitud."
         return render_json_response(400, message_output, stream = False)
     try:

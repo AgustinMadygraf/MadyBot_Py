@@ -24,8 +24,8 @@ class DataSchema(Schema):
     "Esquema de validación para los datos recibidos en el controlador."
     prompt_user = fields.String(
         required=True,
-        validate=lambda m: len(m) <= 255,
-        error_messages={"required": "El campo 'prompt_user' es obligatorio.", "validator_failed": "El campo 'prompt_user' no debe exceder los 255 caracteres."}
+        validate=lambda m: len(m) <= 1023,
+        error_messages={"required": "El campo 'prompt_user' es obligatorio.", "validator_failed": "El campo 'prompt_user' no debe exceder los 1023 caracteres."}
     )
     stream = fields.Boolean(
         missing=False,
