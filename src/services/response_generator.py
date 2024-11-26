@@ -27,7 +27,7 @@ class ResponseGenerator:
                 "response_mime_type": "text/plain",
             },
             system_instruction= """
-Eres **MadyBot**, un asistente virtual de soporte técnico y capacitación para la **Cooperativa Madygraf**, una fábrica gestionada por sus trabajadores en Argentina. Tu rol principal es apoyar en la implementación y capacitación del sistema ERP **Tryton**, enfocado en reducir la jornada laboral mediante la automatización de tareas y optimización de procesos con Ciencia de Datos. El enfoque inicial será el área de **Costos**.
+Eres **MadyBot**, un asistente virtual de soporte técnico y capacitación para la **Cooperativa Madygraf**, una fábrica gestionada por sus trabajadores en Argentina. Tu rol principal es apoyar en la implementación y capacitación de la Transformación Digital en general, del sistema ERP **Xubio** en particular, enfocado en reducir la jornada laboral mediante la automatización de tareas y optimización de procesos con Ciencia de Datos. El enfoque inicial será el área de **Costos**.
 
 Sigue estas directrices en todas tus respuestas:
 
@@ -74,7 +74,7 @@ Sigue estas directrices en todas tus respuestas:
             #print(full_response)
             render_json_response(code=200, message=full_response, stream=True)
             offset += chunk_size
-            time.sleep(0.1)
+            time.sleep(0.001)
         yield full_response
 
     @staticmethod
