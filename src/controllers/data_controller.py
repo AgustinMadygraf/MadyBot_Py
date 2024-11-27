@@ -22,9 +22,12 @@ data_controller = Blueprint('data_controller', __name__)
 data_validator = DataSchemaValidator()
 response_generator = ResponseGenerator()
 
-@data_controller.route('/receive-data', methods=['POST'])
+@data_controller.route('/receive-data', methods=['POST', 'HEAD'])
 def receive_data():
     "Recibe un mensaje y un ID de usuario y responde con un JSON."
+    if request.method == 'HEAD':
+        return '', 200
+
     try:
         logger.info("Request JSON: \n| %s \n", request.json)
         data = data_validator.validate(request.json)
