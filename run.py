@@ -47,3 +47,5 @@ app.register_blueprint(data_controller)
 if __name__ == '__main__':
     # Ejecuta el servidor Flask en el puerto 5000 usando HTTPS
     app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    # Ejecuta el servidor Flask en la dirección 192.168.x.125 y puerto 5000 usando HTTPS
+    #app.run(host='192.168.x.125', port=5000, ssl_context=('cert.pem', 'key.pem'))    

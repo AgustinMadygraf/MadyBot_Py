@@ -25,6 +25,12 @@ CORS(data_controller)
 data_validator = DataSchemaValidator()
 response_generator = ResponseGenerator()
 
+@data_controller.route('/', methods=['GET'])
+def redirect_to_frontend():
+    "Redirige a la URL del frontend."
+    url_frontend = os.getenv('URL_FRONTEND')
+    return redirect(url_frontend)
+
 @data_controller.route('/receive-data', methods=['GET', 'POST', 'HEAD'])
 def receive_data():
     "Recibe un mensaje y un ID de usuario y responde con un JSON."
