@@ -2,7 +2,8 @@
 Path: src/controllers/data_controller.py
 """
 
-from flask import Blueprint, request
+import os
+from flask import Blueprint, request, redirect
 from flask_cors import CORS
 from marshmallow import ValidationError
 from dotenv import load_dotenv
@@ -24,12 +25,15 @@ CORS(data_controller)
 data_validator = DataSchemaValidator()
 response_generator = ResponseGenerator()
 
-@data_controller.route('/receive-data', methods=['POST', 'HEAD'])
+@data_controller.route('/receive-data', methods=['GET', 'POST', 'HEAD'])
 def receive_data():
     "Recibe un mensaje y un ID de usuario y responde con un JSON."
     if request.method == 'HEAD':
         return '', 200
 
+    if request.method == 'GET':
+        url_frontend = os.getenv('URL_FRONTEND')
+        return redirect(url_frontend)
     try:
         logger.info("Request JSON: \n| %s \n", request.json)
         data = data_validator.validate(request.json)
