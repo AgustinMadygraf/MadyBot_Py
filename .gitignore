@@ -36,3 +36,6 @@ build/
 run.spec
 run_madybot.spec
 dist/
+cert.pem
+key.pem
+openssl.cnf

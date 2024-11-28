@@ -45,5 +45,5 @@ db_initializer.initialize_database()
 app.register_blueprint(data_controller)
 
 if __name__ == '__main__':
-    # Ejecuta el servidor Flask en el puerto 5000
-    app.run(host='0.0.0.0', port=5000)
+    # Ejecuta el servidor Flask en el puerto 5000 usando HTTPS
+    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
