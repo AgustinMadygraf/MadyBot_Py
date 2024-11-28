@@ -3,6 +3,7 @@ Path: src/controllers/data_controller.py
 """
 
 from flask import Blueprint, request
+from flask_cors import CORS
 from marshmallow import ValidationError
 from dotenv import load_dotenv
 from src.views.data_view import render_json_response
@@ -17,6 +18,7 @@ load_dotenv()
 
 # Crear un blueprint para el controlador
 data_controller = Blueprint('data_controller', __name__)
+CORS(data_controller)
 
 # Instancias de servicios
 data_validator = DataSchemaValidator()
@@ -35,7 +37,7 @@ def receive_data():
     except ValidationError as err:
         logger.warning("Error de validación en la solicitud: %s", err.messages)
         message_output = "Datos inválidos en la solicitud."
-        return render_json_response(400, message_output, stream = False)
+        return render_json_response(400, message_output, stream=False)
     try:
         # Verificar el valor de 'stream' en el JSON de la solicitud
         if data.get('stream'):
@@ -60,4 +62,4 @@ def receive_data():
         logger.error("Error no anticipado: %s", e)
         code = 500
     logger.info("Generated: \n| %s", message_output)
-    return render_json_response(code, message_output, stream = False)
+    return render_json_response(code, message_output, stream=False)
