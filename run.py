@@ -3,6 +3,7 @@ Path: run.py
 
 """
 
+import os
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ from src.model.database_connector import DatabaseConnector
 from src.model.database_initializer import DatabaseInitializer
 from src.model.table_creator import TableCreator
 from src.logs.config_logger import LoggerConfigurator
+from src.services.ssl_cert_service import create_self_signed_cert
 
 # Configuración del logger al inicio del script
 logger = LoggerConfigurator().configure()
@@ -31,6 +33,7 @@ except FileNotFoundError as e:
 app = Flask(__name__)
 CORS(app)
 
+
 # Inicializar la base de datos y las tablas
 try:
     db_connector = DatabaseConnector()
@@ -50,9 +53,17 @@ except Exception as e:
     logger.error("Error al registrar el blueprint: %s", e)
     exit(1)
 
+# Verificar y crear certificados SSL si no existen
+cert_file = 'cert.pem'
+key_file = 'key.pem'
+if not os.path.isfile(cert_file) or not os.path.isfile(key_file):
+    logger.info("Certificados SSL no encontrados. Creando nuevos certificados...")
+    create_self_signed_cert(cert_file, key_file)
+    logger.info("Certificados SSL creados correctamente.")
+
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+        app.run(host='0.0.0.0', port=5000, ssl_context=(cert_file, key_file))
     except FileNotFoundError as e:
         logger.error("Error al cargar los archivos SSL: %s", e)
         print("Please ensure 'cert.pem' and 'key.pem' files are present.")
