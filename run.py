@@ -31,21 +31,30 @@ except FileNotFoundError as e:
 app = Flask(__name__)
 CORS(app)
 
-# Crear una instancia de DatabaseConnector
-db_connector = DatabaseConnector()
-
-# Crear una instancia de DatabaseInitializer usando TableCreator
-table_creator = TableCreator()
-db_initializer = DatabaseInitializer(db_connector, table_creator)
-
 # Inicializar la base de datos y las tablas
-db_initializer.initialize_database()
+try:
+    db_connector = DatabaseConnector()
+    table_creator = TableCreator()
+    db_initializer = DatabaseInitializer(db_connector, table_creator)
+    db_initializer.initialize_database()
+    logger.info("Base de datos inicializada correctamente.")
+except Exception as e:
+    logger.error("Error al inicializar la base de datos: %s", e)
+    exit(1)
 
 # Registrar el blueprint del controlador
-app.register_blueprint(data_controller)
+try:
+    app.register_blueprint(data_controller)
+    logger.info("Blueprint registrado correctamente.")
+except Exception as e:
+    logger.error("Error al registrar el blueprint: %s", e)
+    exit(1)
 
 if __name__ == '__main__':
-    # Ejecuta el servidor Flask en el puerto 5000 usando HTTPS
-    app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
-    # Ejecuta el servidor Flask en la dirección 192.168.x.125 y puerto 5000 usando HTTPS
-    #app.run(host='192.168.x.125', port=5000, ssl_context=('cert.pem', 'key.pem'))    
+    try:
+        app.run(host='0.0.0.0', port=5000, ssl_context=('cert.pem', 'key.pem'))
+    except FileNotFoundError as e:
+        logger.error("Error al cargar los archivos SSL: %s", e)
+        print("Please ensure 'cert.pem' and 'key.pem' files are present.")
+    except Exception as e:
+        logger.error("Error al iniciar el servidor Flask: %s", e)
