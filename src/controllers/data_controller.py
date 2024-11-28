@@ -32,7 +32,7 @@ def redirect_to_frontend():
     return redirect(url_frontend)
 
 @data_controller.route('/None', methods=['GET'])
-def redirect_to_frontend():
+def redirect_to_frontend_none():
     "Redirige a la URL del frontend."
     url_frontend = os.getenv('URL_FRONTEND')
     return redirect(url_frontend)
