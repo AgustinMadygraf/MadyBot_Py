@@ -62,8 +62,17 @@ if not os.path.isfile(cert_file) or not os.path.isfile(key_file):
     logger.info("Certificados SSL creados correctamente.")
 
 if __name__ == '__main__':
+    is_https = os.getenv('IS_HTTPS', 'false').lower() == 'true'
+
     try:
-        app.run(host='0.0.0.0', port=5000, ssl_context=(cert_file, key_file))
+        if is_https:
+            # Iniciar el servidor HTTPS
+            app.run(host='0.0.0.0', port=5000, ssl_context=(cert_file, key_file))
+            logger.info("Servidor configurado para HTTPS.")
+        else:
+            # Iniciar el servidor HTTP
+            app.run(host='0.0.0.0', port=5000)
+            logger.info("Servidor configurado para HTTP.")
     except FileNotFoundError as e:
         logger.error("Error al cargar los archivos SSL: %s", e)
         print("Please ensure 'cert.pem' and 'key.pem' files are present.")
