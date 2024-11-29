@@ -39,3 +39,4 @@ dist/
 cert.pem
 key.pem
 openssl.cnf
+config/system_instruction.txt
