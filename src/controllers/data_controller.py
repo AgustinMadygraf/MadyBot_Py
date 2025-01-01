@@ -79,3 +79,11 @@ def receive_data():
         code = 500
     logger.info("Generated: \n| %s", message_output)
     return render_json_response(code, message_output, stream=False)
+
+@data_controller.route('/health-check', methods=['GET'])
+def health_check():
+    """
+    Endpoint para verificar el estado del servidor.
+    """
+    logger.info("Health check solicitado. El servidor está funcionando correctamente.")
+    return render_json_response(200, "El servidor está operativo.")
